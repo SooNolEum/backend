@@ -7,7 +7,6 @@ CMD ["./gradlew", "clean", "build"]
 # or Maven 
 # CMD ["./mvnw", "clean", "package"]
 
-VOLUME /tmp
 
 ARG JAR_FILE=build/libs/*.jar
 # or Maven
