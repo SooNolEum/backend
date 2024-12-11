@@ -1,0 +1,8 @@
+namespace: default
+resources:
+  - mariadb.yaml
+  - backend.yaml
+configMapGenerator:
+  - name: init-db
+    files:
+      - configs/init.sql
