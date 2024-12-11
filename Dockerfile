@@ -1,20 +1,11 @@
-# gradle:7.3.1-jdk17 이미지를 기반으로 함
-FROM krmp-d2hub-idock.9rum.cc/goorm/gradle:7.3.1-jdk17
+# 도커파일 jdk17 가져오기
+FROM openjdk:17
 
-# 작업 디렉토리 설정
-WORKDIR /home/gradle/project
+# 이미지 내에서 애플리케이션 파일을 보관할 디렉토리 생성 및 설정
+WORKDIR /app
 
-# Spring 소스 코드를 이미지에 복사
-COPY . .
+# 빌드 결과물인 JAR 파일을 Docker 이미지 안으로 복사
+COPY ./build/libs/education-0.0.1-SNAPSHOT.jar /app/
 
-# gradle 빌드 시 proxy 설정을 gradle.properties에 추가
-RUN echo "systemProp.http.proxyHost=krmp-proxy.9rum.cc\nsystemProp.http.proxyPort=3128\nsystemProp.https.proxyHost=krmp-proxy.9rum.cc\nsystemProp.https.proxyPort=3128" > /root/.gradle/gradle.properties
-
-# gradlew를 이용한 프로젝트 필드
-RUN ./gradlew clean build
-
-# DATABASE_URL을 환경 변수로 삽입
-ENV DATABASE_URL=jdbc:mariadb://mariadb/krampoline
-
-# 빌드 결과 jar 파일을 실행
-CMD ["java", "-jar", "-Dspring.profiles.active=prod", "/home/gradle/project/build/libs/kakao-1.0.jar"]
+# 컨테이너가 시작될 때 실행할 명령 설정
+CMD ["java", "-jar", "/app/education-0.0.1-SNAPSHOT.jar"]
