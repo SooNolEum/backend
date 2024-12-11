@@ -1,63 +1,20 @@
+# gradle:7.3.1-jdk17 이미지를 기반으로 함
 FROM eclipse-temurin:17-jdk-jammy
 
-CMD ["gradle"]
+# 작업 디렉토리 설정
+WORKDIR /home/gradle/project
 
-ENV GRADLE_HOME=/opt/gradle
+# Spring 소스 코드를 이미지에 복사
+COPY . .
 
-RUN set -o errexit -o nounset \
-    && echo "Adding gradle user and group" \
-    && groupadd --system --gid 1000 gradle \
-    && useradd --system --gid gradle --uid 1000 --shell /bin/bash --create-home gradle \
-    && mkdir /home/gradle/.gradle \
-    && chown --recursive gradle:gradle /home/gradle \
-    \
-    && echo "Symlinking root Gradle cache to gradle Gradle cache" \
-    && ln --symbolic /home/gradle/.gradle /root/.gradle
+# gradle 빌드 시 proxy 설정을 gradle.properties에 추가
+RUN echo "systemProp.http.proxyHost=krmp-proxy.9rum.cc\nsystemProp.http.proxyPort=3128\nsystemProp.https.proxyHost=krmp-proxy.9rum.cc\nsystemProp.https.proxyPort=3128" > /root/.gradle/gradle.properties
 
-VOLUME /home/gradle/.gradle
+# gradlew를 이용한 프로젝트 필드
+RUN ./gradlew clean build
 
-WORKDIR /home/gradle
+# DATABASE_URL을 환경 변수로 삽입
+ENV DATABASE_URL=jdbc:mariadb://mariadb/krampoline
 
-RUN set -o errexit -o nounset \
-    && apt-get update \
-    && apt-get install --yes --no-install-recommends \
-        unzip \
-        wget \
-        \
-        bzr \
-        git \
-        git-lfs \
-        mercurial \
-        openssh-client \
-        subversion \
-    && rm --recursive --force /var/lib/apt/lists/* \
-    \
-    && echo "Testing VCSes" \
-    && which bzr \
-    && which git \
-    && which git-lfs \
-    && which hg \
-    && which svn
-
-ENV GRADLE_VERSION=8.11.1
-ARG GRADLE_DOWNLOAD_SHA256=f397b287023acdba1e9f6fc5ea72d22dd63669d59ed4a289a29b1a76eee151c6
-RUN set -o errexit -o nounset \
-    && echo "Downloading Gradle" \
-    && wget --no-verbose --output-document=gradle.zip "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" \
-    \
-    && echo "Checking Gradle download hash" \
-    && echo "${GRADLE_DOWNLOAD_SHA256} *gradle.zip" | sha256sum --check - \
-    \
-    && echo "Installing Gradle" \
-    && unzip gradle.zip \
-    && rm gradle.zip \
-    && mv "gradle-${GRADLE_VERSION}" "${GRADLE_HOME}/" \
-    && ln --symbolic "${GRADLE_HOME}/bin/gradle" /usr/bin/gradle
-
-USER gradle
-
-RUN set -o errexit -o nounset \
-    && echo "Testing Gradle installation" \
-    && gradle --version
-
-USER root
+# 빌드 결과 jar 파일을 실행
+CMD ["java", "-jar", "-Dspring.profiles.active=prod", "/home/gradle/project/build/libs/kakao-1.0.jar"]
