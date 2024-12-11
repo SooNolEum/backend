@@ -1,8 +1,0 @@
-namespace: default
-resources:
-  - nginx.yaml
-  - backend.yaml
-configMapGenerator:
-  - name: nginx
-    files:
-      - configs/default.conf
