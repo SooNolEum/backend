@@ -14,4 +14,4 @@ RUN echo "systemProp.http.proxyHost=krmp-proxy.9rum.cc\nsystemProp.http.proxyPor
 RUN ./gradlew clean build
 
 # 빌드 결과 jar 파일을 실행
-CMD ["java", "-jar", "/home/gradle/project/build/libs/education-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "/gradle/project/build/libs/education-0.0.1-SNAPSHOT.jar"]
