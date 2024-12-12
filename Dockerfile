@@ -2,7 +2,7 @@
 FROM krmp-d2hub-idock.9rum.cc/goorm/gradle:8.2.1-jdk17
 
 # 작업 디렉토리 설정
-WORKDIR /build/libs
+WORKDIR /root
 
 # Spring 소스 코드를 이미지에 복사
 # COPY . .
@@ -16,4 +16,4 @@ RUN echo "systemProp.http.proxyHost=krmp-proxy.9rum.cc\nsystemProp.http.proxyPor
 # RUN ./gradlew build
 
 # 빌드 결과 jar 파일을 실행
-CMD ["java", "-jar", "/build/libs/education-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "/root/education-0.0.1-SNAPSHOT.jar"]
