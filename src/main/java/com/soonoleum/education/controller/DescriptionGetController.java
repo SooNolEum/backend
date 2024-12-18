@@ -22,7 +22,7 @@ public class DescriptionGetController {
 	private final DescriptionService descriptionService;
 
 	@Operation(summary = "모든 폼 데이터 반환", description = "저장된 모든 폼 데이터 반환")
-	@GetMapping("/speech/result")
+	@GetMapping("/explore")
 	public ResponseEntity<List<DescriptionResponse>> findAll() {
 		final List<DescriptionResponse> responses = descriptionService.findAll();
 		return ResponseEntity.ok(responses);
