@@ -78,7 +78,7 @@ public class DescriptionService {
 	}
 
 	private String convertGender(final String gender) {
-		if (gender.equals("남")) {
+		if (gender.equals("남성")) {
 			return "할아버지";
 		}
 		return "할머니";
