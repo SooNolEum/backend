@@ -56,11 +56,11 @@ public class DescriptionService {
 										final String keyword,
 										final String rawText) {
 		// 할머니/할아버지 변환
-		final String convert = convertGender(gender);
+		// final String convert = convertGender(gender);
 		// 타이틀 생성
-		final String title = generateTitle(name, convert, keyword);
+		final String title = keyword;
 		// fullDescription 생성
-		final String description = generateDescription(name, convert, region, keyword, rawText);
+		final String description = generateDescription(name, gender, region, keyword, rawText);
 		// summary 생성
 		final String summary = generateSummary(description);
 		// quiz 생성
@@ -77,20 +77,18 @@ public class DescriptionService {
 		return PostResponse.from(response.id());
 	}
 
-	private String convertGender(final String gender) {
-		if (gender.equals("남성")) {
-			return "할아버지";
-		}
-		return "할머니";
-	}
+	// private String convertGender(final String gender) {
+	// 	if (gender.equals("남성")) {
+	// 		return "할아버지";
+	// 	}
+	// 	return "할머니";
+	// }
 
-	private String generateTitle(final String name,
-								 final String gender,
-								 final String keyword) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(name).append(" ").append(gender).append("의 ").append(keyword);
-		return sb.toString();
-	}
+	// private String generateTitle(final String name,
+	// 							 final String gender,
+	// 							 final String keyword) {
+	// 	return sb.toString();
+	// }
 
 	private String generateDescription(final String name,
 										  final String gender,
@@ -102,9 +100,7 @@ public class DescriptionService {
 		sb.append("성별: ").append(gender).append("\n");
 		sb.append("지역: ").append(region).append("\n");
 		sb.append("키워드: ").append(keyword).append("\n");
-		sb.append("텍스트: 애월읍의 곽지해변은 아름다운 해변과 풍성한 자연경관으로 유명해,")
-				.append(" 어린 시절, 바다에서 온 신비한 존재들이 마을 사람들에게 10년 후의 미래를 알려줬어.")
-				.append("\n");
+		sb.append("텍스트: ").append(rawText).append("\n");
 
 		sb.append("작성 조건").append("\n")
 				.append("1. 주어지는 '이름','성별','지역','키워드','텍스트'를 기반으로 작성할 것.").append("\n")
