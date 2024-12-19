@@ -1,29 +1,40 @@
 package com.soonoleum.education.service;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.StringTokenizer;
 
+import org.apache.tomcat.util.http.fileupload.InvalidFileNameException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.soonoleum.education.config.NaverCloudConfig;
 import com.soonoleum.education.domain.Description;
 import com.soonoleum.education.repository.DescriptionRepositoryImpl;
+import com.soonoleum.education.repository.dto.NaverCloudDto;
 import com.soonoleum.education.repository.dto.request.ChatGPTRequest;
 import com.soonoleum.education.repository.dto.request.DescriptionRequest;
 import com.soonoleum.education.repository.dto.response.ChatGPTResponse;
 import com.soonoleum.education.repository.dto.response.DescriptionResponse;
 import com.soonoleum.education.repository.dto.response.PostResponse;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class DescriptionService {
 
 	private final DescriptionRepositoryImpl descriptionRepository;
+
+	private final NaverCloudConfig naverCloudClient;
 
 	@Value("${openai.model}")
 	private String model;
@@ -54,11 +65,18 @@ public class DescriptionService {
 										final String number,
 										final String region,
 										final String keyword,
-										final String rawText) {
+										final MultipartFile audio) {
 		// 할머니/할아버지 변환
 		// final String convert = convertGender(gender);
+
+
 		// 타이틀 생성
 		final String title = keyword;
+
+		// 오디오 파일 STT 변환
+		final NaverCloudDto STTResponse = getTextByFile(audio);
+		final String rawText = STTResponse.getText();
+
 		// fullDescription 생성
 		final String description = generateDescription(name, gender, region, keyword, rawText);
 		// summary 생성
@@ -75,6 +93,21 @@ public class DescriptionService {
 
 		// 저장된 Id 반환
 		return PostResponse.from(response.id());
+	}
+
+	private NaverCloudDto getTextByFile(MultipartFile file) {
+		try {
+			File convFile = new File(Objects.requireNonNull(file.getOriginalFilename()));
+			convFile.createNewFile();
+			FileOutputStream fos = new FileOutputStream(convFile);
+			fos.write(file.getBytes());
+			fos.close();
+
+			String response = naverCloudClient.soundToText(convFile);
+			return new NaverCloudDto(response);
+		} catch (Exception e) {
+			throw new InvalidFileNameException("잘못된 파일", null);
+		}
 	}
 
 	// private String convertGender(final String gender) {
@@ -166,22 +199,22 @@ public class DescriptionService {
 								final String description,
 								final String summary) {
 		StringTokenizer st = new StringTokenizer(generateQuizResult, "\n");
-		final String rawQuiz = st.nextToken();
-		final String quiz = rawQuiz.substring(5, rawQuiz.length() - 2);
+		final String rawQuiz = st.nextToken().trim();
+		final String quiz = rawQuiz.substring(5);
 
-		final String rawOne = st.nextToken();
-		final String one = rawOne.substring(5, rawOne.length() - 2);
+		final String rawOne = st.nextToken().trim();
+		final String one = rawOne.substring(5);
 
-		final String rawTwo = st.nextToken();
-		final String two = rawTwo.substring(5, rawTwo.length() - 2);
+		final String rawTwo = st.nextToken().trim();
+		final String two = rawTwo.substring(5);
 
-		final String rawThree = st.nextToken();
-		final String three = rawThree.substring(5, rawThree.length() - 2);
+		final String rawThree = st.nextToken().trim();
+		final String three = rawThree.substring(5);
 
-		final String rawFour = st.nextToken();
-		final String four = rawFour.substring(5, rawFour.length() - 2);
+		final String rawFour = st.nextToken().trim();
+		final String four = rawFour.substring(5);
 
-		final String rawAnswer = st.nextToken();
+		final String rawAnswer = st.nextToken().trim();
 		final Integer answer = Integer.parseInt(rawAnswer.substring(5))-1;
 
 		final List<String> options = Arrays.asList(one, two, three, four);
