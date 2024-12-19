@@ -71,7 +71,7 @@ public class DescriptionService {
 
 
 		// 타이틀 생성
-		final String title = keyword;
+		final String title = generateTitle(keyword);
 
 		// 오디오 파일 STT 변환
 		final NaverCloudDto STTResponse = getTextByFile(audio);
@@ -79,8 +79,10 @@ public class DescriptionService {
 
 		// fullDescription 생성
 		final String description = generateDescription(name, gender, region, keyword, rawText);
+
 		// summary 생성
 		final String summary = generateSummary(description);
+
 		// quiz 생성
 		final String quizResult = generateQuiz(description);
 
@@ -117,11 +119,11 @@ public class DescriptionService {
 	// 	return "할머니";
 	// }
 
-	// private String generateTitle(final String name,
-	// 							 final String gender,
-	// 							 final String keyword) {
-	// 	return sb.toString();
-	// }
+	private String generateTitle(final String keyword) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(keyword).append(" 이야기");
+		return sb.toString();
+	}
 
 	private String generateDescription(final String name,
 										  final String gender,
@@ -139,7 +141,8 @@ public class DescriptionService {
 				.append("1. 주어지는 '이름','성별','지역','키워드','텍스트'를 기반으로 작성할 것.").append("\n")
 				.append("2. 공백 포함 최대 200자, 기승전결 구조를 갖추어 작성할 것.").append("\n")
 				.append("3. 주어지는 이름을 주인공으로 할 것").append("\n")
-				.append("4. 어린아이의 입장에서 교육적인 콘텐츠로 사용할 수 있을 것.").append("\n");
+				.append("4. 어린아이의 입장에서 교육적인 콘텐츠로 사용할 수 있을 것.").append("\n")
+				.append("5. 문장을 강조하기위해 '*'를 사용하지 않을 것.").append("\n");
 
 		sb.append("구성").append("\n")
 				.append("1. 동화 형식의 내용으로 작성할 것.").append("\n")
